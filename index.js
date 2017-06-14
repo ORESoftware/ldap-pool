@@ -54,6 +54,7 @@ var Pool = (function () {
         client.cdtClientId = this.clientId++;
         client.on('idle', function () {
             console.log("client with id => " + client.cdtClientId + " is idle.");
+            client.ldapPoolRemoved = true;
             clearActive(_this, client);
             clearInactive(_this, client);
             _this.addClient();
@@ -63,6 +64,7 @@ var Pool = (function () {
         });
         client.on('error', function (e) {
             console.error(" => LDAP client error (in client pool, id=" + client.cdtClientId + ") => ", e.stack || e);
+            client.ldapPoolRemoved = true;
             clearActive(_this, client);
             clearInactive(_this, client);
             _this.addClient();
@@ -80,6 +82,9 @@ var Pool = (function () {
         });
         this.inactive.push(client);
         client.returnToPool = function () {
+            if (client.ldapPoolRemoved) {
+                return;
+            }
             var fn;
             if (fn = _this.waitingForClient.pop()) {
                 fn(client);
@@ -114,6 +119,9 @@ var Pool = (function () {
         return this.active[oldestActive];
     };
     Pool.prototype.returnClientToPool = function (c) {
+        if (c.ldapPoolRemoved) {
+            return;
+        }
         var fn;
         if (fn = this.waitingForClient.pop()) {
             fn(c);

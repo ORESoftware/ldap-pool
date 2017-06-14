@@ -16,8 +16,7 @@ let poolId = 0;
 
 
 export interface IConnOpts {
-  reconnect: boolean,
-
+  reconnect: boolean
 }
 
 
@@ -38,7 +37,8 @@ export interface IClient {
   bind: Function,
   unbind: Function
   destroy: Function,
-  returnToPool: Function
+  returnToPool: Function,
+  ldapPoolRemoved?: boolean
 }
 
 
@@ -122,6 +122,7 @@ export class Pool {
 
     client.on('idle', () => {
       console.log(`client with id => ${client.cdtClientId} is idle.`);
+      client.ldapPoolRemoved = true;
       clearActive(this, client);
       clearInactive(this, client);
       this.addClient();
@@ -132,6 +133,7 @@ export class Pool {
 
     client.on('error',  (e: Error) =>  {
       console.error(` => LDAP client error (in client pool, id=${client.cdtClientId}) => `, e.stack || e);
+      client.ldapPoolRemoved = true;
       clearActive(this, client);
       clearInactive(this, client);
       this.addClient();
@@ -152,6 +154,11 @@ export class Pool {
     this.inactive.push(client);
 
     client.returnToPool = () => {
+
+      if(client.ldapPoolRemoved){
+        // we marked this client as removed
+        return;
+      }
 
       let fn;
 
@@ -202,6 +209,11 @@ export class Pool {
 
 
   returnClientToPool(c: IClient): void {
+
+    if(c.ldapPoolRemoved){
+      // we marked this client as removed
+      return;
+    }
 
     let fn;
 

@@ -20,6 +20,7 @@ export interface IClient {
     unbind: Function;
     destroy: Function;
     returnToPool: Function;
+    ldapPoolRemoved?: boolean;
 }
 export declare class Pool {
     id: number;
