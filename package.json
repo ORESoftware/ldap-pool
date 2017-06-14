@@ -1,0 +1,29 @@
+{
+  "name": "ldap-pool",
+  "version": "0.0.1001",
+  "description": "LDAP client connection pool",
+  "main": "index.js",
+  "scripts": {
+    "test": "suman"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ORESoftware/ldap-pool.git"
+  },
+  "keywords": [
+    "ldap",
+    "pool",
+    "client",
+    "connection",
+    "ldapjs"
+  ],
+  "author": "Olegzandr VD",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ORESoftware/ldap-pool/issues"
+  },
+  "homepage": "https://github.com/ORESoftware/ldap-pool#readme",
+  "dependencies": {
+    "ldapjs": "^1.0.1"
+  }
+}
