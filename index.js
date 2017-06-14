@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 var util = require('util');
 var ldap = require('ldapjs');
@@ -20,9 +20,18 @@ function createTimeout(pool, client, timeout) {
         }
     }, timeout || 30000);
 }
+function clearActive(pool, c) {
+    pool.active = pool.active.filter(function (v) {
+        return v !== c;
+    });
+}
+function clearInactive(pool, c) {
+    pool.inactive = pool.inactive.filter(function (v) {
+        return v !== c;
+    });
+}
 var Pool = (function () {
     function Pool(opts) {
-        var _this = this;
         this.id = ++poolId;
         this.size = opts.size;
         this.connOpts = opts.connOpts;
@@ -31,44 +40,49 @@ var Pool = (function () {
         this.dn = opts.dn;
         this.pwd = opts.pwd;
         this.waitingForClient = [];
-        var _loop_1 = function (i) {
-            var client = ldap.createClient(this_1.connOpts);
-            client.cdtClientId = i;
-            client.on('idle', function () {
-                console.log("client with id => " + client.cdtClientId + " is idle.");
-            });
-            client.on('error', function (e) {
-                console.error(" => LDAP client error (in client pool, id=" + this.cdtClientId + ") => ", e.stack || e);
-            });
-            client.bind(this_1.dn, this_1.pwd, function (err) {
-                if (err) {
-                    console.error(err);
-                }
-                else {
-                    console.log('Successfully bound client.');
-                }
-            });
-            this_1.inactive.push(client);
-            client.returnToPool = function () {
-                var fn;
-                if (fn = _this.waitingForClient.pop()) {
-                    fn(client);
-                }
-                else {
-                    _this.active = _this.active.filter(function (v) {
-                        return v !== client;
-                    });
-                    _this.inactive.unshift(client);
-                }
-            };
-        };
-        var this_1 = this;
+        this.clientId = 1;
         for (var i = 0; i < this.size; i++) {
-            _loop_1(i);
+            this.addClient();
         }
     }
     Pool.create = function (opts) {
         return new Pool(opts);
+    };
+    Pool.prototype.addClient = function () {
+        var _this = this;
+        var client = ldap.createClient(this.connOpts);
+        client.cdtClientId = this.clientId++;
+        client.on('idle', function () {
+            console.log("client with id => " + client.cdtClientId + " is idle.");
+            clearActive(_this, client);
+            clearInactive(_this, client);
+            _this.addClient();
+        });
+        client.on('error', function (e) {
+            console.error(" => LDAP client error (in client pool, id=" + this.cdtClientId + ") => ", e.stack || e);
+            clearActive(this, client);
+            clearInactive(this, client);
+            this.addClient();
+        });
+        client.bind(this.dn, this.pwd, function (err) {
+            if (err) {
+                console.error(err);
+            }
+            else {
+                console.log('Successfully bound client.');
+            }
+        });
+        this.inactive.push(client);
+        client.returnToPool = function () {
+            var fn;
+            if (fn = _this.waitingForClient.pop()) {
+                fn(client);
+            }
+            else {
+                clearActive(_this, client);
+                _this.inactive.unshift(client);
+            }
+        };
     };
     Pool.prototype.getClient = function () {
         var _this = this;
@@ -99,13 +113,13 @@ var Pool = (function () {
             fn(c);
         }
         else {
-            this.active = this.active.filter(function (v) {
-                return v !== c;
-            });
+            clearActive(this, c);
             this.inactive.unshift(c);
         }
     };
     ;
     return Pool;
 }());
-exports.default = Pool;
+exports.Pool = Pool;
+var $exports = module.exports;
+exports.default = $exports;
