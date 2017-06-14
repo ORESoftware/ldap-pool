@@ -1,6 +1,6 @@
 {
   "name": "ldap-pool",
-  "version": "0.0.1001",
+  "version": "0.0.1002",
   "description": "LDAP client connection pool",
   "main": "index.js",
   "scripts": {
