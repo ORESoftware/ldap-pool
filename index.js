@@ -61,6 +61,10 @@ function Pool(opts) {
 
 }
 
+Pool.create = function(opts){
+  return new Pool(opts);
+};
+
 Pool.prototype.getClient = function () {
 
   let c = this.inactive.pop();
