@@ -57,12 +57,18 @@ var Pool = (function () {
             clearActive(_this, client);
             clearInactive(_this, client);
             _this.addClient();
+            client.unbind(function () {
+                client.destroy();
+            });
         });
         client.on('error', function (e) {
-            console.error(" => LDAP client error (in client pool, id=" + this.cdtClientId + ") => ", e.stack || e);
-            clearActive(this, client);
-            clearInactive(this, client);
-            this.addClient();
+            console.error(" => LDAP client error (in client pool, id=" + client.cdtClientId + ") => ", e.stack || e);
+            clearActive(_this, client);
+            clearInactive(_this, client);
+            _this.addClient();
+            client.unbind(function () {
+                client.destroy();
+            });
         });
         client.bind(this.dn, this.pwd, function (err) {
             if (err) {
