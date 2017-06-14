@@ -125,13 +125,19 @@ export class Pool {
       clearActive(this, client);
       clearInactive(this, client);
       this.addClient();
+      client.unbind(function(){
+        client.destroy();
+      });
     });
 
-    client.on('error', function (e: Error) {
-      console.error(` => LDAP client error (in client pool, id=${this.cdtClientId}) => `, e.stack || e);
+    client.on('error',  (e: Error) =>  {
+      console.error(` => LDAP client error (in client pool, id=${client.cdtClientId}) => `, e.stack || e);
       clearActive(this, client);
       clearInactive(this, client);
       this.addClient();
+      client.unbind(function(){
+        client.destroy();
+      });
     });
 
     client.bind(this.dn, this.pwd, function (err: Error) {
