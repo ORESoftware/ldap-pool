@@ -25,5 +25,8 @@
   "homepage": "https://github.com/ORESoftware/ldap-pool#readme",
   "dependencies": {
     "ldapjs": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^7.0.31"
   }
 }
