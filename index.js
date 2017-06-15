@@ -1,6 +1,5 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-var util = require('util');
 var ldap = require("ldapjs");
 var chalk = require("chalk");
 var poolId = 0;

@@ -4,7 +4,7 @@ import Timer = NodeJS.Timer;
 import {Client} from '@types/ldapjs';
 
 //core
-const util = require('util');
+import * as util from 'util';
 
 //npm
 import * as ldap from 'ldapjs';
