@@ -2,4 +2,4 @@
 
 cd $(dirname "$0")
 rm -rf docs
-typedoc --mode modules --out docs .
+typedoc --excludePrivate --ignoreCompilerErrors --mode file --theme minimal --out docs .

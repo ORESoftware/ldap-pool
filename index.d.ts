@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import Timer = NodeJS.Timer;
+import { Client } from '@types/ldapjs';
 export interface IConnOpts {
     reconnect: boolean;
 }
@@ -17,13 +18,11 @@ export interface ILDAPPoolOpts {
     numClientsDestroyed: number;
     verbosity: number;
 }
-export interface IClient {
+export interface IClient extends Client {
     __inactiveTimeoutX: Timer;
-    bind: Function;
-    unbind: Function;
-    destroy: Function;
     returnToPool: Function;
     ldapPoolRemoved?: boolean;
+    cdtClientId: number;
 }
 export declare class Pool {
     id: number;

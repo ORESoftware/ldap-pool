@@ -1,13 +1,15 @@
 'use strict';
 
 import Timer = NodeJS.Timer;
+import {Client} from '@types/ldapjs';
 
 //core
 const util = require('util');
 
 //npm
-const ldap = require('ldapjs');
-const chalk = require('chalk');
+import * as ldap from 'ldapjs';
+import * as chalk from 'chalk';
+
 
 //project
 let poolId = 0;
@@ -15,7 +17,6 @@ let log = console.log.bind(console, chalk.blue(' => [ldap-pool] =>'));
 let logError = console.error.bind(console, chalk.yellow(' => [ldap-pool] => warning =>'));
 
 //////////////////////////////////////////////////////////////////////
-
 
 export interface IConnOpts {
   reconnect: boolean
@@ -37,13 +38,11 @@ export interface ILDAPPoolOpts {
   verbosity: number;
 }
 
-export interface IClient {
+export interface IClient extends Client{
   __inactiveTimeoutX: Timer,
-  bind: Function,
-  unbind: Function
-  destroy: Function,
   returnToPool: Function,
   ldapPoolRemoved?: boolean
+  cdtClientId: number;
 }
 
 
@@ -93,18 +92,18 @@ function logSize(pool: Pool, event: string) {
 
 export class Pool {
 
-  id: number;
-  size: number;
-  connOpts: any;
-  active: Array<IClient>;
-  inactive: Array<IClient>;
-  dn: string;
-  pwd: string;
-  waitingForClient: Array<Function>;
-  clientId: number;
-  numClientsAdded: number;
-  numClientsDestroyed: number;
-  verbosity: number;
+   id: number;
+   size: number;
+   connOpts: any;
+   active: Array<IClient>;
+   inactive: Array<IClient>;
+   dn: string;
+   pwd: string;
+   waitingForClient: Array<Function>;
+   clientId: number;
+   numClientsAdded: number;
+   numClientsDestroyed: number;
+   verbosity: number;
 
   constructor(opts: ILDAPPoolOpts) {
 
@@ -134,7 +133,7 @@ export class Pool {
 
   addClient(): void {
 
-    let client = ldap.createClient(this.connOpts);
+    let client = ldap.createClient(this.connOpts) as IClient;
     client.cdtClientId = this.clientId++;
 
     client.on('idle', () => {
@@ -145,9 +144,9 @@ export class Pool {
       log(chalk.yellow(`client with id => ${client.cdtClientId} is idle.`));
       logSize(this,'event: idle');
       client.ldapPoolRemoved = true;
+      this.addClient();
       clearActive(this, client);
       clearInactive(this, client);
-      this.addClient();
       client.unbind(function () {
         client.destroy();
         client.removeAllListeners();
@@ -162,9 +161,9 @@ export class Pool {
       logError(`client error (in client pool, id=${client.cdtClientId}) => \n`, e.stack || e);
       logSize(this, 'event: error');
       client.ldapPoolRemoved = true;
+      this.addClient();
       clearActive(this, client);
       clearInactive(this, client);
-      this.addClient();
       client.unbind(function () {
         client.destroy();
         client.removeAllListeners();

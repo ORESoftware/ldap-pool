@@ -1,8 +1,8 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 var util = require('util');
-var ldap = require('ldapjs');
-var chalk = require('chalk');
+var ldap = require("ldapjs");
+var chalk = require("chalk");
 var poolId = 0;
 var log = console.log.bind(console, chalk.blue(' => [ldap-pool] =>'));
 var logError = console.error.bind(console, chalk.yellow(' => [ldap-pool] => warning =>'));
@@ -74,9 +74,9 @@ var Pool = (function () {
             log(chalk.yellow("client with id => " + client.cdtClientId + " is idle."));
             logSize(_this, 'event: idle');
             client.ldapPoolRemoved = true;
+            _this.addClient();
             clearActive(_this, client);
             clearInactive(_this, client);
-            _this.addClient();
             client.unbind(function () {
                 client.destroy();
                 client.removeAllListeners();
@@ -90,9 +90,9 @@ var Pool = (function () {
             logError("client error (in client pool, id=" + client.cdtClientId + ") => \n", e.stack || e);
             logSize(_this, 'event: error');
             client.ldapPoolRemoved = true;
+            _this.addClient();
             clearActive(_this, client);
             clearInactive(_this, client);
-            _this.addClient();
             client.unbind(function () {
                 client.destroy();
                 client.removeAllListeners();
