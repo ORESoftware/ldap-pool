@@ -67,11 +67,11 @@ var Pool = (function () {
         var client = ldap.createClient(this.connOpts);
         client.cdtClientId = this.clientId++;
         client.on('idle', function () {
-            log(chalk.yellow("client with id => " + client.cdtClientId + " is idle."));
             if (client.ldapPoolRemoved) {
                 return;
             }
             ++_this.numClientsDestroyed;
+            log(chalk.yellow("client with id => " + client.cdtClientId + " is idle."));
             logSize(_this, 'event: idle');
             client.ldapPoolRemoved = true;
             _this.addClient();
@@ -83,11 +83,12 @@ var Pool = (function () {
             });
         });
         client.on('error', function (e) {
-            logError("client error (in client pool, id=" + client.cdtClientId + ") => \n", e.stack || e);
+            clearTimeout(client.__inactiveTimeoutX);
             if (client.ldapPoolRemoved) {
                 return;
             }
             ++_this.numClientsDestroyed;
+            logError("client error (in client pool, id=" + client.cdtClientId + ") => \n", e.stack || e);
             logSize(_this, 'event: error');
             client.ldapPoolRemoved = true;
             _this.addClient();
@@ -106,9 +107,9 @@ var Pool = (function () {
                 log('Successfully bound client.');
             }
         });
-        logSize(this, 'event: add');
         this.inactive.push(client);
         ++this.numClientsAdded;
+        logSize(this, 'event: add');
         client.returnToPool = function () {
             logSize(_this, 'event: return to pool');
             if (client.ldapPoolRemoved) {
@@ -130,6 +131,7 @@ var Pool = (function () {
         logSize(this, 'event: get client');
         var c = this.inactive.pop();
         if (c) {
+            clearTimeout(c.__inactiveTimeoutX);
             clearInactive(this, c);
             clearActive(this, c);
             this.active.unshift(c);
@@ -152,7 +154,9 @@ var Pool = (function () {
             return c;
         }
         var oldestActive = this.active.length - 1;
-        return this.active[oldestActive];
+        c = this.active[oldestActive];
+        clearTimeout(c.__inactiveTimeoutX);
+        return c;
     };
     Pool.prototype.returnClientToPool = function (c) {
         logSize(this, 'event: return client to pool');

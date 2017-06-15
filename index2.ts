@@ -118,6 +118,7 @@ export class Pool {
     this.numClientsAdded = 0;
     this.numClientsDestroyed = 0;
     this.verbosity = opts.verbosity || 2;
+
     this.clientId = 1;
 
     for (let i = 0; i < this.size; i++) {
@@ -136,11 +137,13 @@ export class Pool {
     client.cdtClientId = this.clientId++;
 
     client.on('idle', () => {
-      log(chalk.yellow(`client with id => ${client.cdtClientId} is idle.`));
+
       if (client.ldapPoolRemoved) {
         return;
       }
+
       ++this.numClientsDestroyed;
+      log(chalk.yellow(`client with id => ${client.cdtClientId} is idle.`));
       logSize(this, 'event: idle');
       client.ldapPoolRemoved = true;
       this.addClient();
@@ -150,14 +153,37 @@ export class Pool {
         client.destroy();
         client.removeAllListeners();
       });
+
+      /* clearActive(this, client);
+       clearInactive(this, client);
+       this.inactive.push(client);
+
+       client.__inactiveTimeoutX = setTimeout(function () {
+       ++this.numClientsDestroyed;
+       log(chalk.yellow(`client with id => ${client.cdtClientId} is idle.`));
+       logSize(this, 'event: idle');
+       client.ldapPoolRemoved = true;
+       this.addClient();
+       clearActive(this, client);
+       clearInactive(this, client);
+       client.unbind(function () {
+       client.destroy();
+       client.removeAllListeners();
+       });
+       }, 10000);*/
+
     });
 
     client.on('error', (e: Error) => {
-      logError(`client error (in client pool, id=${client.cdtClientId}) => \n`, e.stack || e);
+
+      clearTimeout(client.__inactiveTimeoutX);
+
       if (client.ldapPoolRemoved) {
         return;
       }
+
       ++this.numClientsDestroyed;
+      logError(`client error (in client pool, id=${client.cdtClientId}) => \n`, e.stack || e);
       logSize(this, 'event: error');
       client.ldapPoolRemoved = true;
       this.addClient();
@@ -178,9 +204,9 @@ export class Pool {
       }
     });
 
-    logSize(this, 'event: add');
     this.inactive.push(client);
     ++this.numClientsAdded;
+    logSize(this, 'event: add');
 
     client.returnToPool = () => {
 
@@ -201,16 +227,17 @@ export class Pool {
         clearInactive(this, client);
         this.inactive.unshift(client);
       }
+
     };
   }
 
   getClient(): Promise<IClient> {
 
     logSize(this, 'event: get client');
-
     let c = this.inactive.pop();
 
     if (c) {
+      clearTimeout(c.__inactiveTimeoutX);
       clearInactive(this, c);
       clearActive(this, c);
       this.active.unshift(c);
@@ -221,6 +248,7 @@ export class Pool {
         this.waitingForClient.unshift(resolve);
       });
     }
+
   }
 
 
@@ -238,7 +266,9 @@ export class Pool {
     }
 
     let oldestActive = this.active.length - 1;
-    return this.active[oldestActive];
+    c = this.active[oldestActive];
+    clearTimeout(c.__inactiveTimeoutX);
+    return c;
 
   }
 
@@ -262,7 +292,10 @@ export class Pool {
       clearInactive(this, c);
       this.inactive.unshift(c);
     }
+
   };
+
+
 }
 
 
