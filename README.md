@@ -10,9 +10,9 @@
 
 ```javascript
 
-let LDAPPool = require('ldap-pool');
+let LDAPl = require('ldap-pool');
 
-let pool = new LDAPPool({
+let pool = new LDAPl({
 
 
 });
