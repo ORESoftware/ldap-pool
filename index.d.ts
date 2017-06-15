@@ -7,8 +7,8 @@ export interface ILDAPPoolOpts {
     id: number;
     size: number;
     connOpts: IConnOpts;
-    active: Array<any>;
-    inactive: Array<any>;
+    active: Array<IClient>;
+    inactive: Array<IClient>;
     dn: string;
     pwd: string;
     waitingForClient: Array<Function>;

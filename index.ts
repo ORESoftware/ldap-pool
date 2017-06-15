@@ -10,7 +10,8 @@ const ldap = require('ldapjs');
 
 //project
 let poolId = 0;
-
+let log = console.log.bind(console, ' => [ldap-pool] =>');
+let logError = console.error.bind(console, ' => [ldap-pool] => warning =>');
 
 //////////////////////////////////////////////////////////////////////
 
@@ -24,8 +25,8 @@ export interface ILDAPPoolOpts {
   id: number;
   size: number;
   connOpts: IConnOpts;
-  active: Array<any>;
-  inactive: Array<any>;
+  active: Array<IClient>;
+  inactive: Array<IClient>;
   dn: string;
   pwd: string;
   waitingForClient: Array<Function>,
@@ -77,6 +78,11 @@ function clearInactive(pool: Pool, c: IClient) {
   });
 }
 
+function logSize(pool: Pool) {
+  log('active clients count => ', pool.active.length);
+  log('inactive clients count => ', pool.inactive.length);
+  log('total clients count => ', pool.inactive.length + pool.active.length);
+}
 
 export class Pool {
 
@@ -117,37 +123,46 @@ export class Pool {
   addClient(): void {
 
     let client = ldap.createClient(this.connOpts);
-
     client.cdtClientId = this.clientId++;
 
     client.on('idle', () => {
-      console.log(`client with id => ${client.cdtClientId} is idle.`);
+      if (client.ldapPoolRemoved) {
+        return;
+      }
+      log(`client with id => ${client.cdtClientId} is idle.`);
+      logSize(this);
       client.ldapPoolRemoved = true;
       clearActive(this, client);
       clearInactive(this, client);
       this.addClient();
-      client.unbind(function(){
+      client.unbind(function () {
         client.destroy();
+        client.removeAllListeners();
       });
     });
 
-    client.on('error',  (e: Error) =>  {
-      console.error(` => LDAP client error (in client pool, id=${client.cdtClientId}) => `, e.stack || e);
+    client.on('error', (e: Error) => {
+      if (client.ldapPoolRemoved) {
+        return;
+      }
+      logError(`client error (in client pool, id=${client.cdtClientId}) => \n`, e.stack || e);
+      logSize(this);
       client.ldapPoolRemoved = true;
       clearActive(this, client);
       clearInactive(this, client);
       this.addClient();
-      client.unbind(function(){
+      client.unbind(function () {
         client.destroy();
+        client.removeAllListeners();
       });
     });
 
     client.bind(this.dn, this.pwd, function (err: Error) {
       if (err) {
-        console.error(err);
+        logError('\n', err.stack || err);
       }
       else {
-        console.log('Successfully bound client.');
+        log('Successfully bound client.');
       }
     });
 
@@ -155,7 +170,9 @@ export class Pool {
 
     client.returnToPool = () => {
 
-      if(client.ldapPoolRemoved){
+      logSize(this);
+
+      if (client.ldapPoolRemoved) {
         // we marked this client as removed
         return;
       }
@@ -178,6 +195,8 @@ export class Pool {
 
   getClient(): Promise<IClient> {
 
+    logSize(this);
+
     let c = this.inactive.pop();
 
     if (c) {
@@ -195,6 +214,8 @@ export class Pool {
 
   getClientSync(): IClient {
 
+    logSize(this);
+
     let c;
     if (c = this.inactive.pop()) {
       clearTimeout(c.__inactiveTimeoutX);
@@ -210,7 +231,9 @@ export class Pool {
 
   returnClientToPool(c: IClient): void {
 
-    if(c.ldapPoolRemoved){
+    logSize(this);
+
+    if (c.ldapPoolRemoved) {
       // we marked this client as removed
       return;
     }
