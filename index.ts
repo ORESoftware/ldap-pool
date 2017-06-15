@@ -131,10 +131,12 @@ export class ILDAPPool {
     client.cdtClientId = this.clientId++;
 
     client.on('idle', () => {
-      log(chalk.yellow(`client with id => ${client.cdtClientId} is idle.`));
+
       if (client.ldapPoolRemoved) {
+        log(chalk.yellow(`client with id => ${client.cdtClientId} is idle, but client has already been removed.`));
         return;
       }
+      log(chalk.yellow(`client with id => ${client.cdtClientId} is idle.`));
       ++this.numClientsDestroyed;
       logSize(this, 'event: idle');
       client.ldapPoolRemoved = true;

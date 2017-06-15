@@ -67,10 +67,11 @@ var ILDAPPool = (function () {
         var client = ldap.createClient(this.connOpts);
         client.cdtClientId = this.clientId++;
         client.on('idle', function () {
-            log(chalk.yellow("client with id => " + client.cdtClientId + " is idle."));
             if (client.ldapPoolRemoved) {
+                log(chalk.yellow("client with id => " + client.cdtClientId + " is idle, but client has already been removed."));
                 return;
             }
+            log(chalk.yellow("client with id => " + client.cdtClientId + " is idle."));
             ++_this.numClientsDestroyed;
             logSize(_this, 'event: idle');
             client.ldapPoolRemoved = true;
