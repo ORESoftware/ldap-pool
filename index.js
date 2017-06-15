@@ -41,8 +41,8 @@ function logSize(pool, event) {
     log('inactive clients count => ', pool.inactive.length);
     log('total clients count => ', pool.inactive.length + pool.active.length);
 }
-var Pool = (function () {
-    function Pool(opts) {
+var ILDAPPool = (function () {
+    function ILDAPPool(opts) {
         this.id = ++poolId;
         this.size = opts.size;
         this.connOpts = opts.connOpts;
@@ -59,18 +59,19 @@ var Pool = (function () {
             this.addClient();
         }
     }
-    Pool.create = function (opts) {
-        return new Pool(opts);
+    ILDAPPool.create = function (opts) {
+        return new ILDAPPool(opts);
     };
-    Pool.prototype.addClient = function () {
+    ILDAPPool.prototype.addClient = function () {
         var _this = this;
         var client = ldap.createClient(this.connOpts);
         client.cdtClientId = this.clientId++;
         client.on('idle', function () {
-            log(chalk.yellow("client with id => " + client.cdtClientId + " is idle."));
             if (client.ldapPoolRemoved) {
+                log(chalk.yellow("client with id => " + client.cdtClientId + " is idle, but client has already been removed."));
                 return;
             }
+            log(chalk.yellow("client with id => " + client.cdtClientId + " is idle."));
             ++_this.numClientsDestroyed;
             logSize(_this, 'event: idle');
             client.ldapPoolRemoved = true;
@@ -125,7 +126,7 @@ var Pool = (function () {
             }
         };
     };
-    Pool.prototype.getClient = function () {
+    ILDAPPool.prototype.getClient = function () {
         var _this = this;
         logSize(this, 'event: get client');
         var c = this.inactive.pop();
@@ -141,7 +142,7 @@ var Pool = (function () {
             });
         }
     };
-    Pool.prototype.getClientSync = function () {
+    ILDAPPool.prototype.getClientSync = function () {
         logSize(this, 'event: get client sync');
         var c;
         if (c = this.inactive.pop()) {
@@ -154,7 +155,7 @@ var Pool = (function () {
         var oldestActive = this.active.length - 1;
         return this.active[oldestActive];
     };
-    Pool.prototype.returnClientToPool = function (c) {
+    ILDAPPool.prototype.returnClientToPool = function (c) {
         logSize(this, 'event: return client to pool');
         if (c.ldapPoolRemoved) {
             return;
@@ -170,8 +171,9 @@ var Pool = (function () {
         }
     };
     ;
-    return Pool;
+    return ILDAPPool;
 }());
-exports.Pool = Pool;
+exports.ILDAPPool = ILDAPPool;
+exports.Pool = ILDAPPool;
 var $exports = module.exports;
 exports.default = $exports;

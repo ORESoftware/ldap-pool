@@ -29,7 +29,7 @@
     "./**/*.ts"
   ],
   "exclude": [
-    "test",
+    "z-test",
     "node_modules"
   ]
 }

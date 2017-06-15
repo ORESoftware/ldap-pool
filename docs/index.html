@@ -910,6 +910,9 @@ img { max-width: 100%; }
 <nav class="tsd-navigation secondary">
 	<ul>
 		<li class=" tsd-kind-class">
+			<a href="classes/ildappool.html" class="tsd-kind-icon">ILDAPPool</a>
+		</li>
+		<li class=" tsd-kind-class">
 			<a href="classes/pool.html" class="tsd-kind-icon">Pool</a>
 		</li>
 		<li class=" tsd-kind-interface">
@@ -925,10 +928,16 @@ img { max-width: 100%; }
 			<a href="globals.html#_exports" class="tsd-kind-icon">$exports</a>
 		</li>
 		<li class=" tsd-kind-variable tsd-is-not-exported">
+			<a href="globals.html#c" class="tsd-kind-icon">c</a>
+		</li>
+		<li class=" tsd-kind-variable tsd-is-not-exported">
 			<a href="globals.html#log" class="tsd-kind-icon">log</a>
 		</li>
 		<li class=" tsd-kind-variable tsd-is-not-exported">
 			<a href="globals.html#logerror" class="tsd-kind-icon">log<wbr>Error</a>
+		</li>
+		<li class=" tsd-kind-variable tsd-is-not-exported">
+			<a href="globals.html#pool" class="tsd-kind-icon">pool</a>
 		</li>
 		<li class=" tsd-kind-variable tsd-is-not-exported">
 			<a href="globals.html#poolid" class="tsd-kind-icon">pool<wbr>Id</a>
@@ -955,23 +964,41 @@ img { max-width: 100%; }
 		<div class="tsd-panel tsd-typography">
 			<h1 id="ldap-pool-a-simple-client-pool-for-ldap-connections">LDAP Pool - a simple client pool for LDAP connections</h1>
 			<h2 id="this-api-is-promise-based-so-as-to-work-well-with-async-await-flow-control-">This API is promise-based - so as to work well with async/await flow control.</h2>
+			<h2 id="installation">Installation</h2>
+			<pre><code class="lang-bash">npm install -S ldap-pool
+</code></pre>
 			<h2 id="usage">Usage</h2>
-			<pre><code class="lang-javascript">
-<span class="hljs-keyword">let</span> LDAPl = <span class="hljs-built_in">require</span>(<span class="hljs-string">'ldap-pool'</span>);
+			<pre><code class="lang-typescript">
+<span class="hljs-keyword">import</span> {Pool, ILDAPPool, IClient} <span class="hljs-keyword">from</span> <span class="hljs-string">'ldap-pool'</span>;
 
-<span class="hljs-keyword">let</span> pool = <span class="hljs-keyword">new</span> LDAPl({
+<span class="hljs-keyword">let</span> pool : ILDAPPool = <span class="hljs-keyword">new</span> Pool({
 
 
 });
 
 
 <span class="hljs-comment">// synchronous</span>
-<span class="hljs-keyword">let</span> client = pool.getClientSync();
+<span class="hljs-keyword">let</span> client : IClient = pool.getClientSync();
 
 
 <span class="hljs-comment">// asynchronous</span>
-pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">client</span>)</span>{
+pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">c: IClient</span>)</span>{
 
+
+});
+</code></pre>
+			<p>The asynchronous getClient method is preferred, because this can guarantee we use a client that is
+			not already active. Although it shouldn&#39;t matter that much.</p>
+			<p>Here we have a full use cycle:</p>
+			<pre><code class="lang-typescript">
+<span class="hljs-keyword">let</span> client : IClient = pool.getClientSync();
+
+client.search(<span class="hljs-string">'foo'</span>,opts,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err,res</span>)</span>{
+
+
+  <span class="hljs-comment">// when you're done, return the client to the pool</span>
+  <span class="hljs-comment">// this is important for performance, but not imperative for functionality</span>
+  client.returnToPool();
 
 });
 </code></pre>
@@ -984,6 +1011,7 @@ pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">fun
 					<section class="tsd-index-section ">
 						<h3>Classes</h3>
 						<ul class="tsd-index-list">
+							<li class="tsd-kind-class"><a href="classes/ildappool.html" class="tsd-kind-icon">ILDAPPool</a></li>
 							<li class="tsd-kind-class"><a href="classes/pool.html" class="tsd-kind-icon">Pool</a></li>
 						</ul>
 					</section>
@@ -999,8 +1027,10 @@ pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">fun
 						<h3>Variables</h3>
 						<ul class="tsd-index-list">
 							<li class="tsd-kind-variable"><a href="globals.html#_exports" class="tsd-kind-icon">$exports</a></li>
+							<li class="tsd-kind-variable tsd-is-not-exported"><a href="globals.html#c" class="tsd-kind-icon">c</a></li>
 							<li class="tsd-kind-variable tsd-is-not-exported"><a href="globals.html#log" class="tsd-kind-icon">log</a></li>
 							<li class="tsd-kind-variable tsd-is-not-exported"><a href="globals.html#logerror" class="tsd-kind-icon">log<wbr>Error</a></li>
+							<li class="tsd-kind-variable tsd-is-not-exported"><a href="globals.html#pool" class="tsd-kind-icon">pool</a></li>
 							<li class="tsd-kind-variable tsd-is-not-exported"><a href="globals.html#poolid" class="tsd-kind-icon">pool<wbr>Id</a></li>
 							<li class="tsd-kind-variable tsd-is-not-exported"><a href="globals.html#util" class="tsd-kind-icon">util</a></li>
 						</ul>
@@ -1025,7 +1055,18 @@ pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">fun
 				<div class="tsd-signature tsd-kind-icon">$exports<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;module.exports</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/530c6eb/index.ts#L277">index.ts:277</a></li>
+						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index.ts#L264">index.ts:264</a></li>
+						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index2.ts#L306">index2.ts:306</a></li>
+					</ul>
+				</aside>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-variable tsd-is-not-exported">
+				<a name="c" class="tsd-anchor"></a>
+				<h3>c</h3>
+				<div class="tsd-signature tsd-kind-icon">c<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">IClient</span><span class="tsd-signature-symbol"> =&nbsp;pool.getClientSync()</span></div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/test/src/ts.test.ts#L14">test/src/ts.test.ts:14</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1035,7 +1076,8 @@ pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">fun
 				<div class="tsd-signature tsd-kind-icon">log<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;console.log.bind(console, chalk.blue(&#x27; &#x3D;&gt; [ldap-pool] &#x3D;&gt;&#x27;))</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/530c6eb/index.ts#L16">index.ts:16</a></li>
+						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index.ts#L16">index.ts:16</a></li>
+						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index2.ts#L16">index2.ts:16</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1045,7 +1087,18 @@ pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">fun
 				<div class="tsd-signature tsd-kind-icon">log<wbr>Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;console.error.bind(console, chalk.yellow(&#x27; &#x3D;&gt; [ldap-pool] &#x3D;&gt; warning &#x3D;&gt;&#x27;))</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/530c6eb/index.ts#L17">index.ts:17</a></li>
+						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index.ts#L17">index.ts:17</a></li>
+						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index2.ts#L17">index2.ts:17</a></li>
+					</ul>
+				</aside>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-variable tsd-is-not-exported">
+				<a name="pool" class="tsd-anchor"></a>
+				<h3>pool</h3>
+				<div class="tsd-signature tsd-kind-icon">pool<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">ILDAPPool</span><span class="tsd-signature-symbol"> =&nbsp;new ILDAPPool({size: 5,connOpts: {url: &#x27;dog&#x27;,reconnect: true},dn: &#x27;foo&#x27;,pwd: &#x27;dog&#x27;})</span></div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/test/src/ts.test.ts#L3">test/src/ts.test.ts:3</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1055,7 +1108,8 @@ pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">fun
 				<div class="tsd-signature tsd-kind-icon">pool<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/530c6eb/index.ts#L15">index.ts:15</a></li>
+						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index.ts#L15">index.ts:15</a></li>
+						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index2.ts#L15">index2.ts:15</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1065,7 +1119,8 @@ pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">fun
 				<div class="tsd-signature tsd-kind-icon">util<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;require(&#x27;util&#x27;)</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/530c6eb/index.ts#L7">index.ts:7</a></li>
+						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index.ts#L7">index.ts:7</a></li>
+						<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index2.ts#L7">index2.ts:7</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1076,19 +1131,19 @@ pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">fun
 				<a name="clearactive" class="tsd-anchor"></a>
 				<h3>clear<wbr>Active</h3>
 				<ul class="tsd-signatures tsd-kind-function tsd-is-not-exported">
-					<li class="tsd-signature tsd-kind-icon">clear<wbr>Active<span class="tsd-signature-symbol">(</span>pool<span class="tsd-signature-symbol">: </span><a href="classes/pool.html" class="tsd-signature-type">Pool</a>, c<span class="tsd-signature-symbol">: </span><a href="interfaces/iclient.html" class="tsd-signature-type">IClient</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					<li class="tsd-signature tsd-kind-icon">clear<wbr>Active<span class="tsd-signature-symbol">(</span>pool<span class="tsd-signature-symbol">: </span><a href="classes/ildappool.html" class="tsd-signature-type">ILDAPPool</a>, c<span class="tsd-signature-symbol">: </span><a href="interfaces/iclient.html" class="tsd-signature-type">IClient</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 				</ul>
 				<ul class="tsd-descriptions">
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/530c6eb/index.ts#L72">index.ts:72</a></li>
+								<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index.ts#L66">index.ts:66</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
 						<ul class="tsd-parameters">
 							<li>
-								<h5>pool: <a href="classes/pool.html" class="tsd-signature-type">Pool</a></h5>
+								<h5>pool: <a href="classes/ildappool.html" class="tsd-signature-type">ILDAPPool</a></h5>
 							</li>
 							<li>
 								<h5>c: <a href="interfaces/iclient.html" class="tsd-signature-type">IClient</a></h5>
@@ -1102,19 +1157,19 @@ pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">fun
 				<a name="clearinactive" class="tsd-anchor"></a>
 				<h3>clear<wbr>Inactive</h3>
 				<ul class="tsd-signatures tsd-kind-function tsd-is-not-exported">
-					<li class="tsd-signature tsd-kind-icon">clear<wbr>Inactive<span class="tsd-signature-symbol">(</span>pool<span class="tsd-signature-symbol">: </span><a href="classes/pool.html" class="tsd-signature-type">Pool</a>, c<span class="tsd-signature-symbol">: </span><a href="interfaces/iclient.html" class="tsd-signature-type">IClient</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					<li class="tsd-signature tsd-kind-icon">clear<wbr>Inactive<span class="tsd-signature-symbol">(</span>pool<span class="tsd-signature-symbol">: </span><a href="classes/ildappool.html" class="tsd-signature-type">ILDAPPool</a>, c<span class="tsd-signature-symbol">: </span><a href="interfaces/iclient.html" class="tsd-signature-type">IClient</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 				</ul>
 				<ul class="tsd-descriptions">
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/530c6eb/index.ts#L78">index.ts:78</a></li>
+								<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index.ts#L72">index.ts:72</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
 						<ul class="tsd-parameters">
 							<li>
-								<h5>pool: <a href="classes/pool.html" class="tsd-signature-type">Pool</a></h5>
+								<h5>pool: <a href="classes/ildappool.html" class="tsd-signature-type">ILDAPPool</a></h5>
 							</li>
 							<li>
 								<h5>c: <a href="interfaces/iclient.html" class="tsd-signature-type">IClient</a></h5>
@@ -1128,19 +1183,19 @@ pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">fun
 				<a name="createtimeout" class="tsd-anchor"></a>
 				<h3>create<wbr>Timeout</h3>
 				<ul class="tsd-signatures tsd-kind-function tsd-is-not-exported">
-					<li class="tsd-signature tsd-kind-icon">create<wbr>Timeout<span class="tsd-signature-symbol">(</span>pool<span class="tsd-signature-symbol">: </span><a href="classes/pool.html" class="tsd-signature-type">Pool</a>, client<span class="tsd-signature-symbol">: </span><a href="interfaces/iclient.html" class="tsd-signature-type">IClient</a>, timeout<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					<li class="tsd-signature tsd-kind-icon">create<wbr>Timeout<span class="tsd-signature-symbol">(</span>pool<span class="tsd-signature-symbol">: </span><a href="classes/ildappool.html" class="tsd-signature-type">ILDAPPool</a>, client<span class="tsd-signature-symbol">: </span><a href="interfaces/iclient.html" class="tsd-signature-type">IClient</a>, timeout<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 				</ul>
 				<ul class="tsd-descriptions">
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/530c6eb/index.ts#L49">index.ts:49</a></li>
+								<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index.ts#L43">index.ts:43</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
 						<ul class="tsd-parameters">
 							<li>
-								<h5>pool: <a href="classes/pool.html" class="tsd-signature-type">Pool</a></h5>
+								<h5>pool: <a href="classes/ildappool.html" class="tsd-signature-type">ILDAPPool</a></h5>
 							</li>
 							<li>
 								<h5>client: <a href="interfaces/iclient.html" class="tsd-signature-type">IClient</a></h5>
@@ -1157,19 +1212,19 @@ pool.getClient().then(<span class="hljs-function"><span class="hljs-keyword">fun
 				<a name="logsize" class="tsd-anchor"></a>
 				<h3>log<wbr>Size</h3>
 				<ul class="tsd-signatures tsd-kind-function tsd-is-not-exported">
-					<li class="tsd-signature tsd-kind-icon">log<wbr>Size<span class="tsd-signature-symbol">(</span>pool<span class="tsd-signature-symbol">: </span><a href="classes/pool.html" class="tsd-signature-type">Pool</a>, event<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					<li class="tsd-signature tsd-kind-icon">log<wbr>Size<span class="tsd-signature-symbol">(</span>pool<span class="tsd-signature-symbol">: </span><a href="classes/ildappool.html" class="tsd-signature-type">ILDAPPool</a>, event<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 				</ul>
 				<ul class="tsd-descriptions">
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/530c6eb/index.ts#L84">index.ts:84</a></li>
+								<li>Defined in <a href="https://github.com/ORESoftware/ldap-pool/blob/e29424a/index.ts#L78">index.ts:78</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
 						<ul class="tsd-parameters">
 							<li>
-								<h5>pool: <a href="classes/pool.html" class="tsd-signature-type">Pool</a></h5>
+								<h5>pool: <a href="classes/ildappool.html" class="tsd-signature-type">ILDAPPool</a></h5>
 							</li>
 							<li>
 								<h5>event: <span class="tsd-signature-type">string</span></h5>
