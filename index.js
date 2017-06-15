@@ -33,7 +33,10 @@ function clearInactive(pool, c) {
         return v !== c;
     });
 }
-function logSize(pool) {
+function logSize(pool, event) {
+    log(event || '');
+    log('added/created clients count => ', pool.numClientsAdded);
+    log('destroyed clients count => ', pool.numClientsDestroyed);
     log('active clients count => ', pool.active.length);
     log('inactive clients count => ', pool.inactive.length);
     log('total clients count => ', pool.inactive.length + pool.active.length);
@@ -48,6 +51,9 @@ var Pool = (function () {
         this.dn = opts.dn;
         this.pwd = opts.pwd;
         this.waitingForClient = [];
+        this.numClientsAdded = 0;
+        this.numClientsDestroyed = 0;
+        this.verbosity = opts.verbosity || 2;
         this.clientId = 1;
         for (var i = 0; i < this.size; i++) {
             this.addClient();
@@ -64,8 +70,9 @@ var Pool = (function () {
             if (client.ldapPoolRemoved) {
                 return;
             }
-            log("client with id => " + client.cdtClientId + " is idle.");
-            logSize(_this);
+            ++_this.numClientsDestroyed;
+            log(chalk.yellow("client with id => " + client.cdtClientId + " is idle."));
+            logSize(_this, 'event: idle');
             client.ldapPoolRemoved = true;
             clearActive(_this, client);
             clearInactive(_this, client);
@@ -79,8 +86,9 @@ var Pool = (function () {
             if (client.ldapPoolRemoved) {
                 return;
             }
+            ++_this.numClientsDestroyed;
             logError("client error (in client pool, id=" + client.cdtClientId + ") => \n", e.stack || e);
-            logSize(_this);
+            logSize(_this, 'event: error');
             client.ldapPoolRemoved = true;
             clearActive(_this, client);
             clearInactive(_this, client);
@@ -99,8 +107,10 @@ var Pool = (function () {
             }
         });
         this.inactive.push(client);
+        ++this.numClientsAdded;
+        logSize(this, 'event: add');
         client.returnToPool = function () {
-            logSize(_this);
+            logSize(_this, 'event: return to pool');
             if (client.ldapPoolRemoved) {
                 return;
             }
@@ -110,15 +120,18 @@ var Pool = (function () {
             }
             else {
                 clearActive(_this, client);
+                clearInactive(_this, client);
                 _this.inactive.unshift(client);
             }
         };
     };
     Pool.prototype.getClient = function () {
         var _this = this;
-        logSize(this);
+        logSize(this, 'event: get client');
         var c = this.inactive.pop();
         if (c) {
+            clearInactive(this, c);
+            clearActive(this, c);
             this.active.unshift(c);
             return Promise.resolve(c);
         }
@@ -129,9 +142,10 @@ var Pool = (function () {
         }
     };
     Pool.prototype.getClientSync = function () {
-        logSize(this);
+        logSize(this, 'event: get client sync');
         var c;
         if (c = this.inactive.pop()) {
+            clearInactive(this, c);
             clearTimeout(c.__inactiveTimeoutX);
             this.active.unshift(c);
             return c;
@@ -140,7 +154,7 @@ var Pool = (function () {
         return this.active[oldestActive];
     };
     Pool.prototype.returnClientToPool = function (c) {
-        logSize(this);
+        logSize(this, 'event: return client to pool');
         if (c.ldapPoolRemoved) {
             return;
         }
@@ -150,6 +164,7 @@ var Pool = (function () {
         }
         else {
             clearActive(this, c);
+            clearInactive(this, c);
             this.inactive.unshift(c);
         }
     };

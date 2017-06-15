@@ -32,6 +32,9 @@ export interface ILDAPPoolOpts {
   pwd: string;
   waitingForClient: Array<Function>,
   clientId: number;
+  numClientsAdded: number;
+  numClientsDestroyed: number;
+  verbosity: number;
 }
 
 export interface IClient {
@@ -79,7 +82,10 @@ function clearInactive(pool: Pool, c: IClient) {
   });
 }
 
-function logSize(pool: Pool) {
+function logSize(pool: Pool, event: string) {
+  log(event || '');
+  log('added/created clients count => ', pool.numClientsAdded);
+  log('destroyed clients count => ', pool.numClientsDestroyed);
   log('active clients count => ', pool.active.length);
   log('inactive clients count => ', pool.inactive.length);
   log('total clients count => ', pool.inactive.length + pool.active.length);
@@ -96,6 +102,9 @@ export class Pool {
   pwd: string;
   waitingForClient: Array<Function>;
   clientId: number;
+  numClientsAdded: number;
+  numClientsDestroyed: number;
+  verbosity: number;
 
   constructor(opts: ILDAPPoolOpts) {
 
@@ -106,8 +115,10 @@ export class Pool {
     this.inactive = [];
     this.dn = opts.dn;
     this.pwd = opts.pwd;
-    // these are resolve functions waiting to be called
-    this.waitingForClient = [];
+    this.waitingForClient = [];   // these are resolve functions waiting to be called
+    this.numClientsAdded = 0;
+    this.numClientsDestroyed = 0;
+    this.verbosity = opts.verbosity || 2;
 
     this.clientId = 1;
 
@@ -130,8 +141,9 @@ export class Pool {
       if (client.ldapPoolRemoved) {
         return;
       }
-      log(`client with id => ${client.cdtClientId} is idle.`);
-      logSize(this);
+      ++this.numClientsDestroyed;
+      log(chalk.yellow(`client with id => ${client.cdtClientId} is idle.`));
+      logSize(this,'event: idle');
       client.ldapPoolRemoved = true;
       clearActive(this, client);
       clearInactive(this, client);
@@ -146,8 +158,9 @@ export class Pool {
       if (client.ldapPoolRemoved) {
         return;
       }
+      ++this.numClientsDestroyed;
       logError(`client error (in client pool, id=${client.cdtClientId}) => \n`, e.stack || e);
-      logSize(this);
+      logSize(this, 'event: error');
       client.ldapPoolRemoved = true;
       clearActive(this, client);
       clearInactive(this, client);
@@ -168,10 +181,12 @@ export class Pool {
     });
 
     this.inactive.push(client);
+    ++this.numClientsAdded;
+    logSize(this,'event: add');
 
     client.returnToPool = () => {
 
-      logSize(this);
+      logSize(this,'event: return to pool');
 
       if (client.ldapPoolRemoved) {
         // we marked this client as removed
@@ -184,11 +199,10 @@ export class Pool {
         fn(client);
       }
       else {
-
         clearActive(this, client);
+        clearInactive(this, client);
         this.inactive.unshift(client);
         // createTimeout(this, client);
-
       }
 
     };
@@ -196,11 +210,13 @@ export class Pool {
 
   getClient(): Promise<IClient> {
 
-    logSize(this);
+    logSize(this,'event: get client');
 
     let c = this.inactive.pop();
 
     if (c) {
+      clearInactive(this, c);
+      clearActive(this, c);
       this.active.unshift(c);
       return Promise.resolve(c);
     }
@@ -215,10 +231,11 @@ export class Pool {
 
   getClientSync(): IClient {
 
-    logSize(this);
+    logSize(this, 'event: get client sync');
 
     let c;
     if (c = this.inactive.pop()) {
+      clearInactive(this, c);
       clearTimeout(c.__inactiveTimeoutX);
       this.active.unshift(c);
       return c;
@@ -232,7 +249,7 @@ export class Pool {
 
   returnClientToPool(c: IClient): void {
 
-    logSize(this);
+    logSize(this, 'event: return client to pool');
 
     if (c.ldapPoolRemoved) {
       // we marked this client as removed
@@ -247,6 +264,7 @@ export class Pool {
     else {
 
       clearActive(this, c);
+      clearInactive(this, c);
       this.inactive.unshift(c);
       // createTimeout(this, c);
     }

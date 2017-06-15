@@ -13,6 +13,9 @@ export interface ILDAPPoolOpts {
     pwd: string;
     waitingForClient: Array<Function>;
     clientId: number;
+    numClientsAdded: number;
+    numClientsDestroyed: number;
+    verbosity: number;
 }
 export interface IClient {
     __inactiveTimeoutX: Timer;
@@ -32,6 +35,9 @@ export declare class Pool {
     pwd: string;
     waitingForClient: Array<Function>;
     clientId: number;
+    numClientsAdded: number;
+    numClientsDestroyed: number;
+    verbosity: number;
     constructor(opts: ILDAPPoolOpts);
     static create(opts: ILDAPPoolOpts): Pool;
     addClient(): void;
