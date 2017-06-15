@@ -19,23 +19,17 @@ let logError = console.error.bind(console, chalk.yellow(' => [ldap-pool] => warn
 //////////////////////////////////////////////////////////////////////
 
 export interface IConnOpts {
-  reconnect: boolean
+  reconnect?: boolean,
+  url: string
 }
 
 
 export interface ILDAPPoolOpts {
-  id: number;
-  size: number;
+  size?: number;
   connOpts: IConnOpts;
-  active: Array<IClient>;
-  inactive: Array<IClient>;
   dn: string;
   pwd: string;
-  waitingForClient: Array<Function>,
-  clientId: number;
-  numClientsAdded: number;
-  numClientsDestroyed: number;
-  verbosity: number;
+  verbosity?: number;
 }
 
 export interface IClient extends Client {
@@ -46,7 +40,7 @@ export interface IClient extends Client {
 }
 
 
-function createTimeout(pool: Pool, client: IClient, timeout?: number) {
+function createTimeout(pool: ILDAPPool, client: IClient, timeout?: number) {
 
   client.__inactiveTimeoutX = setTimeout(function () {
 
@@ -69,19 +63,19 @@ function createTimeout(pool: Pool, client: IClient, timeout?: number) {
 
 }
 
-function clearActive(pool: Pool, c: IClient) {
+function clearActive(pool: ILDAPPool, c: IClient) {
   pool.active = pool.active.filter(function (v) {
     return v !== c;
   });
 }
 
-function clearInactive(pool: Pool, c: IClient) {
+function clearInactive(pool: ILDAPPool, c: IClient) {
   pool.inactive = pool.inactive.filter(function (v) {
     return v !== c;
   });
 }
 
-function logSize(pool: Pool, event: string) {
+function logSize(pool: ILDAPPool, event: string) {
   log(event || '');
   log('added/created clients count => ', pool.numClientsAdded);
   log('destroyed clients count => ', pool.numClientsDestroyed);
@@ -90,7 +84,8 @@ function logSize(pool: Pool, event: string) {
   log('total clients count => ', pool.inactive.length + pool.active.length);
 }
 
-export class Pool {
+
+export class ILDAPPool {
 
   id: number;
   size: number;
@@ -127,7 +122,7 @@ export class Pool {
   }
 
   static create(opts: ILDAPPoolOpts) {
-    return new Pool(opts);
+    return new ILDAPPool(opts);
   }
 
   addClient(): void {
@@ -265,7 +260,7 @@ export class Pool {
   };
 }
 
-
+export const Pool = ILDAPPool;
 let $exports = module.exports;
 export default $exports;
 

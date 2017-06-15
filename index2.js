@@ -159,6 +159,9 @@ var Pool = (function () {
         return c;
     };
     Pool.prototype.returnClientToPool = function (c) {
+        if (!c) {
+            throw new Error('You must pass a client object of type IClient as the first argument to this method.');
+        }
         logSize(this, 'event: return client to pool');
         if (c.ldapPoolRemoved) {
             return;

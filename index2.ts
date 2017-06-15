@@ -275,6 +275,10 @@ export class Pool {
 
   returnClientToPool(c: IClient): void {
 
+    if(!c){
+      throw new Error('You must pass a client object of type IClient as the first argument to this method.');
+    }
+
     logSize(this, 'event: return client to pool');
 
     if (c.ldapPoolRemoved) {

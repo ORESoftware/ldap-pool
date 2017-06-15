@@ -4,32 +4,54 @@
 
 ## This API is promise-based - so as to work well with async/await flow control.
 
+## Installation
 
+```bash
+npm install -S ldap-pool
+
+```
 
 ## Usage
 
-```javascript
+```typescript
 
-let LDAPl = require('ldap-pool');
+import {Pool, ILDAPPool, IClient} from 'ldap-pool';
 
-let pool = new LDAPl({
+let pool : ILDAPPool = new Pool({
 
 
 });
 
 
 // synchronous
-let client = pool.getClientSync();
+let client : IClient = pool.getClientSync();
 
 
 // asynchronous
-pool.getClient().then(function(client){
+pool.getClient().then(function(c: IClient){
   
   
 });
 
+```
 
+The asynchronous getClient method is preferred, because this can guarantee we use a client that is
+not already active. Although it shouldn't matter that much.
 
+Here we have a full use cycle:
 
+```typescript
+
+let client : IClient = pool.getClientSync();
+
+client.search('foo',opts,function(err,res){
+  
+  
+  // when you're done, return the client to the pool
+  // this is important for performance, but not imperative for functionality
+  client.returnToPool();
+  
+});
 
 ```
+
