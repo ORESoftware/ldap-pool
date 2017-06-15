@@ -11,7 +11,7 @@ const chalk = require('chalk');
 
 //project
 let poolId = 0;
-let log = console.log.bind(console, chalk.green(' => [ldap-pool] =>'));
+let log = console.log.bind(console, chalk.blue(' => [ldap-pool] =>'));
 let logError = console.error.bind(console, chalk.yellow(' => [ldap-pool] => warning =>'));
 
 //////////////////////////////////////////////////////////////////////

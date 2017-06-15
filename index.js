@@ -4,7 +4,7 @@ var util = require('util');
 var ldap = require('ldapjs');
 var chalk = require('chalk');
 var poolId = 0;
-var log = console.log.bind(console, chalk.green(' => [ldap-pool] =>'));
+var log = console.log.bind(console, chalk.blue(' => [ldap-pool] =>'));
 var logError = console.error.bind(console, chalk.yellow(' => [ldap-pool] => warning =>'));
 function createTimeout(pool, client, timeout) {
     client.__inactiveTimeoutX = setTimeout(function () {
