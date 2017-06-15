@@ -7,11 +7,12 @@ const util = require('util');
 
 //npm
 const ldap = require('ldapjs');
+const chalk = require('chalk');
 
 //project
 let poolId = 0;
-let log = console.log.bind(console, ' => [ldap-pool] =>');
-let logError = console.error.bind(console, ' => [ldap-pool] => warning =>');
+let log = console.log.bind(console, chalk.green(' => [ldap-pool] =>'));
+let logError = console.error.bind(console, chalk.yellow(' => [ldap-pool] => warning =>'));
 
 //////////////////////////////////////////////////////////////////////
 
