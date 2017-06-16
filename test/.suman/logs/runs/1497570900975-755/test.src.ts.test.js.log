@@ -1,0 +1,15 @@
+ => Suman => Uncaught exception in your test => 
+ TypeError: dog is an invalid LDAP url (protocol)
+    at Object.parse (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/url.js:16:13)
+    at new Client (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/client/client.js:310:16)
+    at Object.createClient (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/client/index.js:54:12)
+    at ILDAPPool.addClient (/Users/alexamil/WebstormProjects/ldap-pool/index.js:66:27)
+    at new ILDAPPool (/Users/alexamil/WebstormProjects/ldap-pool/index.js:58:18)
+    at Object.<anonymous> (/Users/alexamil/WebstormProjects/ldap-pool/test/src/ts.test.js:4:12)
+    at Module._compile (module.js:570:32)
+    at Object.Module._extensions..js (module.js:579:10)
+    at Module.load (module.js:487:32)
+    at tryModuleLoad (module.js:446:12)
+
+
+ => This is the end of the test.

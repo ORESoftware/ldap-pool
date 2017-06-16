@@ -18,15 +18,35 @@ module.exports = data => {
       'start-ldap-server': [function (data, cb) {
 
         let server = ldap.createServer();
-        server.once('error', cb);
-        server.once('listening', cb);
-        server.listen(3890, '127.0.0.1',cb);
 
-        server.bind('ou=people, o=example', function(req, res) {
-          console.log('bind DN: ' + req.dn.toString());
-          console.log('bind PW: ' + req.credentials);
+        server.on('error', function (e) {
+          console.error(e.stack || e);
+        });
+
+        server.search('dc=example', function (req, res) {
+          var obj = {
+            dn: req.dn.toString(),
+            attributes: {
+              objectclass: ['organization', 'top'],
+              o: 'example'
+            }
+          };
+
+          if (req.filter.matches(obj.attributes)) {
+            res.send(obj);
+          }
+
           res.end();
         });
+
+        server.bind('ou=people, o=example', function (req, res) {
+          console.log('bind DN: ' + req.dn.toString());
+          console.log('bind PW: ' + req.credentials);
+          res.send({dog:true});
+          res.end();
+        });
+
+        server.listen(3890, '127.0.0.1', cb);
 
       }]
 

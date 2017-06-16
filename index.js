@@ -100,7 +100,7 @@ var ILDAPPool = (function () {
         });
         client.bind(this.dn, this.pwd, function (err) {
             if (err) {
-                logError('\n', err.stack || err);
+                logError('\n => Client bind error => ', err.stack || err);
             }
             else {
                 log('Successfully bound client.');

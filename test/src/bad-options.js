@@ -3,8 +3,11 @@
 
 const suman = require('suman');
 const Test = suman.init(module, {
-  pre: ['start-ldap-server']
+  pre: [false && 'start-ldap-server']
 });
+
+const chalk = require('chalk');
+
 
 Test.create(function (assert, it, beforeEach, Pool) {
 
@@ -17,25 +20,29 @@ Test.create(function (assert, it, beforeEach, Pool) {
     let pool = new Pool({
 
       connOpts: {
-        url: 'ldap://localhost:3890',
+        url: 'ldap://localhost:389',
         reconnect: true,
         idleTimeout: 40000
       },
       size: 2,
-      dn: 'o=example',
-      pwd: 'cdt_main!@#$'
+      dn: 'cn=admin,dc=example,dc=com',
+      pwd: 'admin'
     });
 
     let c = pool.getClientSync();
 
+    c.once('error',function(e){
+      console.log(' client error => ', e);
+    });
+
     let opts = {
-      filter: `uid=alexamil`,
-      scope: 'sub',
+      // filter: `uid=alexamil`,
+      // scope: 'sub',
       // attributes: ['uid','title']
       attributes: ['*']
     };
 
-    c.search('o=example', opts, function (err, res) {
+    c.search('dc=example', opts, function (err, res) {
 
       if (err) {
         return t.done(err);

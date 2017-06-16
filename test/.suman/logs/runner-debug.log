@@ -2,19 +2,67 @@
 
 ### Suman runner start ###
 
-Beginning of run at 1497505368315 = [Wed Jun 14 2017 22:42:48 GMT-0700 (PDT)]
+Beginning of run at 1497570901025 = [Thu Jun 15 2017 16:55:01 GMT-0700 (PDT)]
 Command issued from the following directory "/Users/alexamil/WebstormProjects/ldap-pool"
-Command = ["/Users/alexamil/.nvm/versions/node/v6.10.2/bin/node","/Users/alexamil/WebstormProjects/ldap-pool/node_modules/suman/cli.js","test/src/bad-options-all.js","test/src/bad-options.js"]
+Command = ["/Users/alexamil/.nvm/versions/node/v6.10.2/bin/node","/Users/alexamil/WebstormProjects/ldap-pool/node_modules/suman/cli.js"]
 
 
-[bad-options.js]  => Suman warning => VVV Suman will continue optimistically, but cannot require dependency with name => data
+[bad-options.js]  => Suman warning => [suman.ioc injector] => Suman will continue optimistically, but cannot require dependency with name => "data"
 
-[bad-options-all.js]  => Suman warning => VVV Suman will continue optimistically, but cannot require dependency with name => data
+[bad-options.js]  => [ldap-pool] => warning => 
+[bad-options.js]  NoSuchObjectError: No tree found for: o=example
+[bad-options.js]     at messageCallback (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/client/client.js:1419:45)
+[bad-options.js]     at Parser.onMessage (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/client/client.js:1089:14)
+[bad-options.js]     at emitOne (events.js:96:13)
+[bad-options.js]     at Parser.emit (events.js:188:7)
+[bad-options.js]     at Parser.write (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/messages/parser.js:111:8)
+[bad-options.js]     at Socket.onData (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/client/client.js:1076:22)
+[bad-options.js]     at emitOne (events.js:96:13)
+[bad-options.js]     at Socket.emit (events.js:188:7)
+[bad-options.js]     at readableAddChunk (_stream_readable.js:176:18)
+[bad-options.js]     at TCP.onread (net.js:551:20)
+
+[bad-options.js] error event: No tree found for: o=example
+
+[bad-options.js]    
+[bad-options.js]    ⚑  => Suman fatal error  => making a graceful exit => 
+[bad-options.js]    No tree found for: o=example
+[bad-options.js]    
+[bad-options.js]    
+[bad-options.js]    
+
+[bad-options.js]  => We are running after.always hooks. Any uncaught errors will be ignored as best as possible.
+
+[bad-options.js]  => [ldap-pool] => warning => 
+[bad-options.js]  NoSuchObjectError: No tree found for: o=example
+[bad-options.js]     at messageCallback (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/client/client.js:1419:45)
+[bad-options.js]     at Parser.onMessage (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/client/client.js:1089:14)
+[bad-options.js]     at emitOne (events.js:96:13)
+[bad-options.js]     at Parser.emit (events.js:188:7)
+[bad-options.js]     at Parser.write (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/messages/parser.js:111:8)
+[bad-options.js]     at Socket.onData (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/client/client.js:1076:22)
+[bad-options.js]     at emitOne (events.js:96:13)
+[bad-options.js]     at Socket.emit (events.js:188:7)
+[bad-options.js]     at readableAddChunk (_stream_readable.js:176:18)
+[bad-options.js]     at TCP.onread (net.js:551:20)
+
+[ts.test.js]  => Suman => Uncaught exception in your test => 
+[ts.test.js]  TypeError: dog is an invalid LDAP url (protocol)
+[ts.test.js]     at Object.parse (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/url.js:16:13)
+[ts.test.js]     at new Client (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/client/client.js:310:16)
+[ts.test.js]     at Object.createClient (/Users/alexamil/WebstormProjects/ldap-pool/node_modules/ldapjs/lib/client/index.js:54:12)
+[ts.test.js]     at ILDAPPool.addClient (/Users/alexamil/WebstormProjects/ldap-pool/index.js:66:27)
+[ts.test.js]     at new ILDAPPool (/Users/alexamil/WebstormProjects/ldap-pool/index.js:58:18)
+[ts.test.js]     at Object.<anonymous> (/Users/alexamil/WebstormProjects/ldap-pool/test/src/ts.test.js:4:12)
+[ts.test.js]     at Module._compile (module.js:570:32)
+[ts.test.js]     at Object.Module._extensions..js (module.js:579:10)
+[ts.test.js]     at Module.load (module.js:487:32)
+[ts.test.js]     at tryModuleLoad (module.js:446:12)
+
+[bad-options.js] No tree found for: o=example
 
 
 ### Suman runner end ###
-
-
 
 
 
