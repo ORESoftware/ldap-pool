@@ -4,4 +4,12 @@
 cd $(dirname "$0")
 npm link;
 npm link ldap-pool;
-./node_modules/.bin/suman test/src/*
+
+
+SUMAN=$(which suman);
+
+if [[ -z ${SUMAN} ]]; then
+npm install -g suman
+fi
+
+suman test/src/*
