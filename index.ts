@@ -5,11 +5,11 @@ import {Client} from '@types/ldapjs';
 
 //core
 import * as util from 'util';
+import * as assert from 'assert';
 
 //npm
 import * as ldap from 'ldapjs';
 import * as chalk from 'chalk';
-
 
 //project
 let poolId = 0;
@@ -20,9 +20,9 @@ let logError = console.error.bind(console, chalk.yellow(' => [ldap-pool] => warn
 
 export interface IConnOpts {
   reconnect?: boolean,
-  url: string
+  url: string,
+  idleTimeout: number
 }
-
 
 export interface ILDAPPoolOpts {
   size?: number;
@@ -38,7 +38,6 @@ export interface IClient extends Client {
   ldapPoolRemoved?: boolean
   cdtClientId: number;
 }
-
 
 function createTimeout(pool: ILDAPPool, client: IClient, timeout?: number) {
 
@@ -84,12 +83,11 @@ function logSize(pool: ILDAPPool, event: string) {
   log('total clients count => ', pool.inactive.length + pool.active.length);
 }
 
-
 export class ILDAPPool {
 
   id: number;
   size: number;
-  connOpts: any;
+  connOpts: IConnOpts;
   active: Array<IClient>;
   inactive: Array<IClient>;
   dn: string;
@@ -104,7 +102,7 @@ export class ILDAPPool {
 
     this.id = ++poolId;
     this.size = opts.size;
-    this.connOpts = opts.connOpts;
+    const connOpts = this.connOpts = opts.connOpts;
     this.active = [];
     this.inactive = [];
     this.dn = opts.dn;
@@ -114,6 +112,10 @@ export class ILDAPPool {
     this.numClientsDestroyed = 0;
     this.verbosity = opts.verbosity || 2;
     this.clientId = 1;
+
+
+    assert(Number.isInteger(connOpts.idleTimeout) && connOpts.idleTimeout > 100,
+      'idleTimeout option should be an integer greater than 100.');
 
     for (let i = 0; i < this.size; i++) {
       this.addClient();
@@ -127,7 +129,10 @@ export class ILDAPPool {
 
   addClient(): void {
 
-    let client = ldap.createClient(this.connOpts) as IClient;
+    let $opts = Object.assign({}, this.connOpts);
+    $opts.idleTimeout = (Math.random() * $opts.idleTimeout) + $opts.idleTimeout/2;
+
+    let client = ldap.createClient($opts) as IClient;
     client.cdtClientId = this.clientId++;
 
     client.on('idle', () => {
@@ -220,7 +225,6 @@ export class ILDAPPool {
     }
   }
 
-
   getClientSync(): IClient {
 
     logSize(this, 'event: get client sync');
@@ -238,7 +242,6 @@ export class ILDAPPool {
     return this.active[oldestActive];
 
   }
-
 
   returnClientToPool(c: IClient): void {
 

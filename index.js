@@ -1,5 +1,6 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
+var assert = require("assert");
 var ldap = require("ldapjs");
 var chalk = require("chalk");
 var poolId = 0;
@@ -44,7 +45,7 @@ var ILDAPPool = (function () {
     function ILDAPPool(opts) {
         this.id = ++poolId;
         this.size = opts.size;
-        this.connOpts = opts.connOpts;
+        var connOpts = this.connOpts = opts.connOpts;
         this.active = [];
         this.inactive = [];
         this.dn = opts.dn;
@@ -54,6 +55,7 @@ var ILDAPPool = (function () {
         this.numClientsDestroyed = 0;
         this.verbosity = opts.verbosity || 2;
         this.clientId = 1;
+        assert(Number.isInteger(connOpts.idleTimeout) && connOpts.idleTimeout > 100, 'idleTimeout option should be an integer greater than 100.');
         for (var i = 0; i < this.size; i++) {
             this.addClient();
         }
@@ -63,7 +65,9 @@ var ILDAPPool = (function () {
     };
     ILDAPPool.prototype.addClient = function () {
         var _this = this;
-        var client = ldap.createClient(this.connOpts);
+        var $opts = Object.assign({}, this.connOpts);
+        $opts.idleTimeout = (Math.random() * $opts.idleTimeout) + $opts.idleTimeout / 2;
+        var client = ldap.createClient($opts);
         client.cdtClientId = this.clientId++;
         client.on('idle', function () {
             if (client.ldapPoolRemoved) {

@@ -1,6 +1,10 @@
 *.log
 *.sh
+*.md
+*.txt
 node_modules
 .idea
 *.json
 docs
+*.ts
+!*.d.ts

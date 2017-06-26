@@ -24,12 +24,7 @@
   },
   "allowJs": true,
   "compileOnSave": false,
-  "include": [
-    "dts",
-    "./**/*.ts"
-  ],
   "exclude": [
-    "z-test",
     "node_modules"
   ]
 }
