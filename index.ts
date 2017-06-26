@@ -132,7 +132,7 @@ export class ILDAPPool {
 
     let $opts = Object.assign({}, this.connOpts);
     $opts.idleTimeout = Math.round((Math.random() * $opts.idleTimeout*(1/3)) + $opts.idleTimeout*(5/6));
-    console.log(chalk.magenta('new idleTimeout value => ', String($opts.idleTimeout)));
+    log(chalk.magenta('new idleTimeout value => ', String($opts.idleTimeout)));
 
     let client = ldap.createClient($opts) as IClient;
     client.cdtClientId = this.clientId++;
