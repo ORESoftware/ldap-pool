@@ -67,8 +67,8 @@ var ILDAPPool = (function () {
     ILDAPPool.prototype.addClient = function () {
         var _this = this;
         var $opts = Object.assign({}, this.connOpts);
-        $opts.idleTimeout = Math.round((Math.random() * $opts.idleTimeout * (1 / 4)) + $opts.idleTimeout * (3 / 4));
-        console.log(chalk.magenta('new idleTimeout value => ', String($opts.idleTimeout)));
+        $opts.idleTimeout = Math.round((Math.random() * $opts.idleTimeout * (1 / 3)) + $opts.idleTimeout * (5 / 6));
+        log(chalk.magenta('new idleTimeout value => ', String($opts.idleTimeout)));
         var client = ldap.createClient($opts);
         client.cdtClientId = this.clientId++;
         client.on('idle', function () {
