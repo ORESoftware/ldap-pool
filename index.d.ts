@@ -4,7 +4,7 @@ import { Client } from '@types/ldapjs';
 export interface IConnOpts {
     reconnect?: boolean;
     url: string;
-    idleTimeout: number;
+    idleTimeout?: number;
 }
 export interface ILDAPPoolOpts {
     size?: number;
