@@ -21,7 +21,7 @@ let logError = console.error.bind(console, chalk.yellow(' => [ldap-pool] => warn
 export interface IConnOpts {
   reconnect?: boolean,
   url: string,
-  idleTimeout: number
+  idleTimeout?: number
 }
 
 export interface ILDAPPoolOpts {
@@ -103,6 +103,7 @@ export class ILDAPPool {
     this.id = ++poolId;
     this.size = opts.size;
     const connOpts = this.connOpts = opts.connOpts;
+    this.connOpts.idleTimeout = this.connOpts.idleTimeout || 30000;
     this.active = [];
     this.inactive = [];
     this.dn = opts.dn;
@@ -114,7 +115,7 @@ export class ILDAPPool {
     this.clientId = 1;
 
 
-    assert(Number.isInteger(connOpts.idleTimeout) && connOpts.idleTimeout > 100,
+    assert(Number.isInteger(connOpts.idleTimeout) && connOpts.idleTimeout > 1000,
       'idleTimeout option should be an integer greater than 100.');
 
     for (let i = 0; i < this.size; i++) {
@@ -130,7 +131,8 @@ export class ILDAPPool {
   addClient(): void {
 
     let $opts = Object.assign({}, this.connOpts);
-    $opts.idleTimeout = (Math.random() * $opts.idleTimeout) + $opts.idleTimeout/2;
+    $opts.idleTimeout = Math.round((Math.random() * $opts.idleTimeout*(3/4)) + $opts.idleTimeout*(3/4));
+    console.log(chalk.magenta('new idleTimeout value => ', String($opts.idleTimeout)));
 
     let client = ldap.createClient($opts) as IClient;
     client.cdtClientId = this.clientId++;
