@@ -11,6 +11,8 @@ import * as assert from 'assert';
 import * as ldap from 'ldapjs';
 import * as chalk from 'chalk';
 
+const IS_DEBUG_LDAP_POOL = process.env.DEBUG_LDAP_POOL;
+
 //project
 let poolId = 0;
 let log = console.log.bind(console, chalk.blue(' => [ldap-pool] =>'));
@@ -75,12 +77,14 @@ function clearInactive(pool: ILDAPPool, c: IClient) {
 }
 
 function logSize(pool: ILDAPPool, event: string) {
-  log(event || '');
-  log('added/created clients count => ', pool.numClientsAdded);
-  log('destroyed clients count => ', pool.numClientsDestroyed);
-  log('active clients count => ', pool.active.length);
-  log('inactive clients count => ', pool.inactive.length);
-  log('total clients count => ', pool.inactive.length + pool.active.length);
+  if(IS_DEBUG_LDAP_POOL){
+    log(event || '');
+    log('added/created clients count => ', pool.numClientsAdded);
+    log('destroyed clients count => ', pool.numClientsDestroyed);
+    log('active clients count => ', pool.active.length);
+    log('inactive clients count => ', pool.inactive.length);
+    log('total clients count => ', pool.inactive.length + pool.active.length);
+  }
 }
 
 export class ILDAPPool {
@@ -132,7 +136,10 @@ export class ILDAPPool {
 
     let $opts = Object.assign({}, this.connOpts);
     $opts.idleTimeout = Math.round((Math.random() * $opts.idleTimeout*(1/3)) + $opts.idleTimeout*(5/6));
-    log(chalk.magenta('new idleTimeout value => ', String($opts.idleTimeout)));
+    if(IS_DEBUG_LDAP_POOL){
+      log(chalk.magenta('new idleTimeout value => ', String($opts.idleTimeout)));
+    }
+
 
     let client = ldap.createClient($opts) as IClient;
     client.cdtClientId = this.clientId++;
@@ -140,10 +147,13 @@ export class ILDAPPool {
     client.on('idle', () => {
 
       if (client.ldapPoolRemoved) {
-        log(chalk.yellow(`client with id => ${client.cdtClientId} is idle, but client has already been removed.`));
+        logError(chalk.yellow(`client with id => ${client.cdtClientId} is idle, but client has already been removed.`));
         return;
       }
-      log(chalk.yellow(`client with id => ${client.cdtClientId} is idle.`));
+      if(IS_DEBUG_LDAP_POOL){
+        log(chalk.yellow(`client with id => ${client.cdtClientId} is idle.`));
+      }
+
       ++this.numClientsDestroyed;
       logSize(this, 'event: idle');
       client.ldapPoolRemoved = true;
@@ -178,7 +188,9 @@ export class ILDAPPool {
         logError('\n => Client bind error => ', err.stack || err);
       }
       else {
-        log('Successfully bound client.');
+        if(IS_DEBUG_LDAP_POOL){
+          log('Successfully bound client.');
+        }
       }
     });
 
