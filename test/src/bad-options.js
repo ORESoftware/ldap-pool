@@ -8,8 +8,9 @@ const Test = suman.init(module, {
 
 const chalk = require('chalk');
 
+Test.create(['Pool', function (b, assert, it, beforeEach) {
 
-Test.create(function (assert, it, beforeEach, Pool) {
+  const {Pool} = b.ioc;
 
   beforeEach(h => {
 
@@ -18,7 +19,6 @@ Test.create(function (assert, it, beforeEach, Pool) {
   it.cb('size is zero', t => {
 
     let pool = new Pool({
-
       connOpts: {
         url: 'ldap://localhost:389',
         reconnect: true,
@@ -31,7 +31,7 @@ Test.create(function (assert, it, beforeEach, Pool) {
 
     let c = pool.getClientSync();
 
-    c.once('error',function(e){
+    c.once('error', function (e) {
       console.log(' client error => ', e);
     });
 
@@ -60,7 +60,7 @@ Test.create(function (assert, it, beforeEach, Pool) {
 
       res.once('error', function (err) {
         console.error('error event: ' + err.message);
-         t.done(err);
+        t.done(err);
       });
 
       res.once('end', function (result) {
@@ -74,4 +74,4 @@ Test.create(function (assert, it, beforeEach, Pool) {
 
   });
 
-});
+}]);

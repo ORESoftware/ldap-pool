@@ -17,11 +17,8 @@ npm install -S ldap-pool
 
 import {Pool, ILDAPPool, IClient} from 'ldap-pool';
 
-let pool : ILDAPPool = new Pool({
-
-
-});
-
+let pool : ILDAPPool = new Pool({});
+let pool: ILDAPPool = Pool.create({})
 
 // synchronous
 let client : IClient = pool.getClientSync();
@@ -42,9 +39,20 @@ Here we have a full use cycle:
 
 ```typescript
 
-let client : IClient = pool.getClientSync();
+const pool = Pool.create({
+  connOpts: {
+    url: url,
+    reconnect: true,
+    idleTimeout: 30000
+  },
+  size: 4,
+  dn: 'uid=cdt_main.gen,OU=Generics,O=cco.nabisco.com',
+  pwd: 'cdt_main!@#$'
+})
 
-client.search('foo',opts,function(err,res){
+let client = pool.getClientSync();
+
+client.search('foo', {}, function(err,res){
   
   
   // when you're done, return the client to the pool

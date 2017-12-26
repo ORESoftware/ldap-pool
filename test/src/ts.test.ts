@@ -12,5 +12,4 @@ let pool: ILDAPPool = new ILDAPPool({
 
 
 const c = pool.getClientSync();
-
 console.log(c);

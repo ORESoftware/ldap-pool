@@ -5,36 +5,19 @@ var ldap = require("ldapjs");
 var chalk = require("chalk");
 var IS_DEBUG_LDAP_POOL = process.env.DEBUG_LDAP_POOL;
 var poolId = 0;
-var log = console.log.bind(console, chalk.blue(' => [ldap-pool] =>'));
-var logError = console.error.bind(console, chalk.yellow(' => [ldap-pool] => warning =>'));
-function createTimeout(pool, client, timeout) {
-    client.__inactiveTimeoutX = setTimeout(function () {
-        var isDestroyable = false;
-        pool.inactive = pool.inactive.filter(function (v) {
-            if (v === client) {
-                isDestroyable = true;
-                return false;
-            }
-            return true;
-        });
-        if (isDestroyable) {
-            client.unbind(function () {
-                client.destroy();
-            });
-        }
-    }, timeout || 30000);
-}
-function clearActive(pool, c) {
+var log = console.log.bind(console, chalk.blue(' [ldap-pool] '));
+var logError = console.error.bind(console, chalk.yellow(' [ldap-pool:warning] '));
+var clearActive = function (pool, c) {
     pool.active = pool.active.filter(function (v) {
         return v !== c;
     });
-}
-function clearInactive(pool, c) {
+};
+var clearInactive = function (pool, c) {
     pool.inactive = pool.inactive.filter(function (v) {
         return v !== c;
     });
-}
-function logSize(pool, event) {
+};
+var logSize = function (pool, event) {
     if (IS_DEBUG_LDAP_POOL) {
         log(event || '');
         log('added/created clients count => ', pool.numClientsAdded);
@@ -43,7 +26,7 @@ function logSize(pool, event) {
         log('inactive clients count => ', pool.inactive.length);
         log('total clients count => ', pool.inactive.length + pool.active.length);
     }
-}
+};
 var ILDAPPool = (function () {
     function ILDAPPool(opts) {
         this.id = ++poolId;
@@ -129,8 +112,8 @@ var ILDAPPool = (function () {
             if (client.ldapPoolRemoved) {
                 return;
             }
-            var fn;
-            if (fn = _this.waitingForClient.pop()) {
+            var fn = _this.waitingForClient.pop();
+            if (fn) {
                 fn(client);
             }
             else {
@@ -150,19 +133,16 @@ var ILDAPPool = (function () {
             this.active.unshift(c);
             return Promise.resolve(c);
         }
-        else {
-            return new Promise(function (resolve) {
-                _this.waitingForClient.unshift(resolve);
-            });
-        }
+        return new Promise(function (resolve) {
+            _this.waitingForClient.unshift(resolve);
+        });
     };
     ILDAPPool.prototype.getClientSync = function () {
         logSize(this, 'event: get client sync');
-        var c;
-        if (c = this.inactive.pop()) {
+        var c = this.inactive.pop();
+        if (c) {
             clearInactive(this, c);
             clearActive(this, c);
-            clearTimeout(c.__inactiveTimeoutX);
             this.active.unshift(c);
             return c;
         }
@@ -174,20 +154,16 @@ var ILDAPPool = (function () {
         if (c.ldapPoolRemoved) {
             return;
         }
-        var fn;
-        if (fn = this.waitingForClient.pop()) {
-            fn(c);
+        var fn = this.waitingForClient.pop();
+        if (fn) {
+            return fn(c);
         }
-        else {
-            clearActive(this, c);
-            clearInactive(this, c);
-            this.inactive.unshift(c);
-        }
+        clearActive(this, c);
+        clearInactive(this, c);
+        this.inactive.unshift(c);
     };
     ;
     return ILDAPPool;
 }());
 exports.ILDAPPool = ILDAPPool;
 exports.Pool = ILDAPPool;
-var $exports = module.exports;
-exports.default = $exports;
