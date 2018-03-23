@@ -1,6 +1,6 @@
 {
   "name": "ldap-pool",
-  "version": "0.0.1011",
+  "version": "0.0.1012",
   "description": "LDAP client connection pool",
   "main": "index.js",
   "types": "index.d.ts",
@@ -27,11 +27,11 @@
   "homepage": "https://github.com/ORESoftware/ldap-pool#readme",
   "dependencies": {
     "chalk": "^1.1.3",
-    "ldapjs": "^1.0.1"
+    "ldapjs": "^1.0.1",
+    "@types/ldapjs": "^1.0.0"
   },
   "devDependencies": {
     "@types/chalk": "^0.4.31",
-    "@types/ldapjs": "^1.0.0",
     "@types/node": "^7.0.31"
   }
 }
