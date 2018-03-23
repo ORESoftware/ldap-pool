@@ -1,6 +1,6 @@
 {
   "name": "ldap-pool",
-  "version": "0.0.1012",
+  "version": "0.0.1013",
   "description": "LDAP client connection pool",
   "main": "index.js",
   "types": "index.d.ts",
@@ -20,7 +20,7 @@
     "ldapjs"
   ],
   "author": "Olegzandr VD",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ORESoftware/ldap-pool/issues"
   },
