@@ -5,11 +5,13 @@ node_modules
 src
 scripts
 .vscode
+test
 
 ### files
 .npmignore
 .gitignore
 .editorconfig
+suman.conf.js
 
 ### matching
 *.json
