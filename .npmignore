@@ -1,10 +1,20 @@
+
+### folders
+node_modules
+.idea
+src
+scripts
+.vscode
+
+### files
+.npmignore
+.gitignore
+.editorconfig
+
+### matching
+*.json
 *.log
 *.sh
 *.md
 *.txt
-node_modules
-.idea
-*.json
-docs
-*.ts
-!*.d.ts
+*.tgz

@@ -7,3 +7,8 @@ password is admin, which is also => {SSHA}DxCUVcOo+948hF8NRHDK/Ok3RVfEnQZa
 
 https://www.mylinuxplace.com/how-to-build-ldap/
 https://roledene.wordpress.com/2015/08/21/configure-ldap-server-in-mac-os-x/
+
+
+working:
+    "ldapjs": "^1.0.1",
+    "@types/ldapjs": "^1.0.0"

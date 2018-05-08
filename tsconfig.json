@@ -1,18 +1,13 @@
 {
   "compilerOptions": {
+    "outDir": "dist",
     "declaration": true,
     "baseUrl": ".",
-    "types": [
-      "node"
-    ],
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "target": "es5",
+    "target": "es6",
     "module": "commonjs",
     "noImplicitAny": true,
     "removeComments": true,
-    "allowUnreachableCode": true,
+    "allowUnreachableCode": false,
     "lib": [
       "es2015",
       "es2016",
@@ -20,11 +15,7 @@
     ]
   },
   "compileOnSave": false,
-  "exclude": [
-    "node_modules"
-  ],
   "include":[
-    "*.ts",
-    "!*.d.ts"
+    "src"
   ]
 }

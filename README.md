@@ -1,33 +1,31 @@
 
 
 # LDAP Pool - a simple client pool for LDAP connections
-
 ## This API is promise-based - so as to work well with async/await flow control.
+
+
 
 ## Installation
 
 ```bash
-npm install -S ldap-pool
-
+$ npm install ldap-pool --save
 ```
 
 ## Usage
 
 ```typescript
 
-import {Pool, ILDAPPool, IClient} from 'ldap-pool';
+import {Pool, LDAPPool, LDAPPoolClient} from 'ldap-pool';
 
-let pool : ILDAPPool = new Pool({});
-let pool: ILDAPPool = Pool.create({})
+let pool = new Pool({});
+let pool = Pool.create({});  // same as above
 
 // synchronous
-let client : IClient = pool.getClientSync();
-
+let client = pool.getClientSync(); // returns a LDAPPoolClient synchronously
 
 // asynchronous
-pool.getClient().then(function(c: IClient){
-  
-  
+pool.getClient().then(function(c: LDAPPoolClient){
+   // gets an LDAPPoolClient asynchronously (the least active client)
 });
 
 ```
@@ -47,16 +45,16 @@ const pool = Pool.create({
   },
   size: 4,
   dn: 'uid=cdt_main.gen,OU=Generics,O=cco.nabisco.com',
-  pwd: 'cdt_main!@#$'
+  pwd: '<pwd>'
 })
+
 
 let client = pool.getClientSync();
 
 client.search('foo', {}, function(err,res){
   
-  
   // when you're done, return the client to the pool
-  // this is important for performance, but not imperative for functionality
+  // this is important for performance, but *not* imperative for functionality/correctness
   client.returnToPool();
   
 });
